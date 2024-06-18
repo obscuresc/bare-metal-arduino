@@ -8,30 +8,54 @@ BLD_DIR = ./build
 
 LOCAL_CC = g++
 LOCAL_CI = ./src/
+LOCAL_LDFLAGS = -lspdlog -lfmt 
+LOCAL_BLD_DIR = $(BLD_DIR)/local
 
 DEV_CC = avr-gcc
-DEV_CFLAGS = -Os -DF_CPU=16000000UL
+DEV_CFLAGS = -Os -DF_CPU=16000000UL -mmcu=atmega328p
+DEV_BLD_DIR = $(BLD_DIR)/device
 
-# avr-gcc -Os -DF_CPU=16000000UL -mmcu=atmega328p -c -o blinky.o blinky.c
-# avr-gcc -mmcu=atmega328p blinky.o -o blinky
-# avr-objcopy -O ihex -R .eeprom blinky blinky.hex
-# avrdude -F -V -c arduino -p ATMEGA328P -P /dev/ttyACM0 -b 115200 -U flash:w:blinky.hex
 
-device:
-	@mkdir -p $(BLD_DIR)/$@
-	$(DEV_CC) $(DEV_CFLAGS) -mmcu=atmega328p -c -o $(BLD_DIR)/$@/blinky.o $(SRC_DIR)/blinky.c
-	$(DEV_CC) -mmcu=atmega328p $(BLD_DIR)/$@/blinky.o -o $(BLD_DIR)/$@/blinky
-	avr-objcopy -O ihex -R .eeprom $(BLD_DIR)/$@/blinky blinky.hex
+###############################################################################
+device: device_init blinky.o spdlog_interface.o
+	$(DEV_CC) $(DEV_CFLAGS) $(DEV_BLD_DIR)/blinky.o $(DEV_BLD_DIR)/spdlog_interface.o -o $(DEV_BLD_DIR)/blinky
+	avr-objcopy -O ihex -R .eeprom $(DEV_BLD_DIR)/blinky blinky.hex
+
+
+device_init:
+	@mkdir -p $(DEV_BLD_DIR)
+.PHONY: device_init
+
+
+blinky.o:
+	$(DEV_CC) -c $(DEV_CFLAGS) $(SRC_DIR)/blinky.c -o $(DEV_BLD_DIR)/blinky.o
+
+
+spdlog_interface.o:
+	$(DEV_CC) -c $(DEV_CFLAGS) $(SRC_DIR)/spdlog_interface.c -o $(DEV_BLD_DIR)/spdlog_interface.o
+
 
 flash: device
 	avrdude -F -V -c arduino -p ATMEGA328P -P /dev/ttyACM0 -b 115200 -U flash:w:blinky.hex
+.PHONY: flash
 
-local:
-	@mkdir -p $(BLD_DIR)/$@
-	$(LOCAL_CC) -D _x86 -I $(LOCAL_CI) $(SRC_DIR)/blinky.c -o $(BLD_DIR)/$@/blinky
 
+###############################################################################
+local: local_init delay 
+	$(LOCAL_CC) -D _x86 -I $(LOCAL_CI) $(SRC_DIR)/blinky.c $(LOCAL_LDFLAGS) $(LOCAL_BLD_DIR)/delay.o -o $(LOCAL_BLD_DIR)/blinky
+
+
+local_init:
+	@mkdir -p $(LOCAL_BLD_DIR)
+.PHONY: local_init
+
+
+delay:
+	$(LOCAL_CC) -c -D _x86 $(LOCAL_LDFLAGS) $(SRC_DIR)/x86/delay.cpp -o $(LOCAL_BLD_DIR)/delay.o
+
+
+###############################################################################
 clean:
 	rm -rf ./build blinky.hex
+.PHONY: clean
 
-.PHONY:
-	clean
