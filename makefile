@@ -17,8 +17,9 @@ DEV_BLD_DIR = $(BLD_DIR)/device
 
 
 ###############################################################################
-device: device_init blinky.o spdlog_interface.o
-	$(DEV_CC) $(DEV_CFLAGS) $(DEV_BLD_DIR)/blinky.o $(DEV_BLD_DIR)/spdlog_interface.o -o $(DEV_BLD_DIR)/blinky
+device: device_init blinky.o spdlog_interface.o usart.o
+	$(DEV_CC) $(DEV_CFLAGS) $(DEV_BLD_DIR)/blinky.o $(DEV_BLD_DIR)/spdlog_interface.o \
+		$(DEV_BLD_DIR)/usart.o -o $(DEV_BLD_DIR)/blinky
 	avr-objcopy -O ihex -R .eeprom $(DEV_BLD_DIR)/blinky blinky.hex
 
 
@@ -26,6 +27,8 @@ device_init:
 	@mkdir -p $(DEV_BLD_DIR)
 .PHONY: device_init
 
+clock.o:
+	$(DEV_CC) -c $(DEV_CFLAGS) $(SRC_DIR)/clock.c -o $(DEV_BLD_DIR)/clock.o
 
 blinky.o:
 	$(DEV_CC) -c $(DEV_CFLAGS) $(SRC_DIR)/blinky.c -o $(DEV_BLD_DIR)/blinky.o
@@ -33,6 +36,10 @@ blinky.o:
 
 spdlog_interface.o:
 	$(DEV_CC) -c $(DEV_CFLAGS) $(SRC_DIR)/spdlog_interface.c -o $(DEV_BLD_DIR)/spdlog_interface.o
+
+
+usart.o:
+	$(DEV_CC) -c $(DEV_CFLAGS) $(SRC_DIR)/usart.c -o $(DEV_BLD_DIR)/usart.o
 
 
 flash: device
