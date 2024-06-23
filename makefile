@@ -12,12 +12,12 @@ LOCAL_LDFLAGS = -lspdlog -lfmt
 LOCAL_BLD_DIR = $(BLD_DIR)/local
 
 DEV_CC = avr-gcc
-DEV_CFLAGS = -Os -DF_CPU=16000000UL -mmcu=atmega328p
+DEV_CFLAGS = -Os -DF_CPU=16000000UL -mmcu=atmega328p -Wall
 DEV_BLD_DIR = $(BLD_DIR)/device
 
 
 ###############################################################################
-device: device_init blinky.o spdlog_interface.o usart.o
+device: device_init blinky.o clock.o spdlog_interface.o usart.o
 	$(DEV_CC) $(DEV_CFLAGS) $(DEV_BLD_DIR)/blinky.o $(DEV_BLD_DIR)/spdlog_interface.o \
 		$(DEV_BLD_DIR)/usart.o -o $(DEV_BLD_DIR)/blinky
 	avr-objcopy -O ihex -R .eeprom $(DEV_BLD_DIR)/blinky blinky.hex
@@ -37,7 +37,6 @@ blinky.o:
 spdlog_interface.o:
 	$(DEV_CC) -c $(DEV_CFLAGS) $(SRC_DIR)/spdlog_interface.c -o $(DEV_BLD_DIR)/spdlog_interface.o
 
-
 usart.o:
 	$(DEV_CC) -c $(DEV_CFLAGS) $(SRC_DIR)/usart.c -o $(DEV_BLD_DIR)/usart.o
 
@@ -48,8 +47,11 @@ flash: device
 
 
 ###############################################################################
-local: local_init delay 
-	$(LOCAL_CC) -D _x86 -I $(LOCAL_CI) $(SRC_DIR)/blinky.c $(LOCAL_LDFLAGS) $(LOCAL_BLD_DIR)/delay.o -o $(LOCAL_BLD_DIR)/blinky
+local: local_init delay usart.o
+	$(LOCAL_CC) -D _x86 -I $(LOCAL_CI) $(SRC_DIR)/blinky.c $(LOCAL_LDFLAGS) \
+		$(LOCAL_BLD_DIR)/delay.o \
+		$(LOCAL_BLD_DIR)/usart.o \
+		-o $(LOCAL_BLD_DIR)/blinky
 
 
 local_init:

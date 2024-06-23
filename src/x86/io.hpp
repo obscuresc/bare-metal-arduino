@@ -26,8 +26,10 @@ uint8_t PORTB5 = 5;
 
 uint8_t PORTD5 = 5;
 
+/*
 uint8_t _BV(uint8_t shift) {
 	return (1 << shift);
 }
+*/
 
 #endif // _IO_H
