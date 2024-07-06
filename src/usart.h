@@ -1,7 +1,12 @@
 #ifndef USART_H
 #define USART_H
 
-#include "avr/io.h"
+#ifdef _x86
+	#include "x86/io.hpp"
+#else
+	#include <avr/io.h>
+#endif
+
 #include <stdint.h>
 
 #define USART_MODE_ASYNC	0

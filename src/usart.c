@@ -7,6 +7,7 @@ uint8_t USART_Init(uint8_t mode, uint8_t multiprocessComMode, uint8_t ubrr, uint
 	#ifdef _x86
 
 	(void) mode;
+	return 0;
 
 	#else
 

@@ -7,9 +7,7 @@
 	#include "spdlog_interface.h"
 	// #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_TRACE
 
-#endif // _x86
-
-#ifdef	_x86 
+#else
 	#include <spdlog/spdlog.h>
 
 	#include "usart.h"
