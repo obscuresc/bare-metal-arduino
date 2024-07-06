@@ -3,6 +3,9 @@
 # modified to use make
 # obscuresc June 2024
 
+MAKEFLAGS = --jobs=$(shell nproc)
+MAKEFLAGS += --output-sync=target
+
 SRC_DIR = ./src
 BLD_DIR = ./build
 
