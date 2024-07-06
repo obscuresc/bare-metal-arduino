@@ -71,19 +71,24 @@ local_init:
 	$(eval BLD_DIR=$(LOCAL_BLD_DIR))
 	@mkdir -p $(BLD_DIR)
 	$(eval COMPILER=$(LOCAL_CC))
-	$(eval FLAGS=$(LOCAL_CFLAGS))
-	$(eval FLAGS+=$(LOCAL_LDFLAGS))
+	$(eval FLAGS+=$(LOCAL_CFLAGS))
+#	$(eval FLAGS+=$(LOCAL_LDFLAGS))
 .PHONY: local_init 
 
-__local: local_init blinky.o delay usart.o
+__local: local_init blinky.o delay usart.o io
 	$(COMPILER) $(FLAGS) -I $(LOCAL_CI) \
 		$(BLD_DIR)/blinky.o \
 		$(BLD_DIR)/delay.o \
 		$(BLD_DIR)/usart.o \
-		-o $(BLD_DIR)/blinky
+		$(BLD_DIR)/io.o \
+		-o $(BLD_DIR)/blinky \
+		$(LOCAL_LDFLAGS)
 
 delay:
 	$(COMPILER) -c $(FLAGS) $(LOCAL_LDFLAGS) $(SRC_DIR)/x86/delay.cpp -o $(BLD_DIR)/delay.o
+
+io:
+	$(COMPILER) -c $(FLAGS) $(LOCAL_LDFLAGS) $(SRC_DIR)/x86/io.cpp -o $(BLD_DIR)/io.o
 
 
 ###############################################################################

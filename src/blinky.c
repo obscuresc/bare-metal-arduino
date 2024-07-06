@@ -26,6 +26,7 @@ int main(void) {
 	
 //	Clock_Init();
 	uint8_t res = USART_Init(USART_MODE_ASYNC, 0, 12, 1, 8, USART_PARITY_NULL, USART_POLARITY_RX_RISE, USART_STOPBITS_ONE);
+	(void) res;
 
 	DDRB |= _BV(DDB5);
 	DDRD |= _BV(DDB0);
